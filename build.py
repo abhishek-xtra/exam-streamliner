@@ -3,7 +3,7 @@
    dist/Exam Streamliner.html  (AirDrop it or put it in iCloud Drive and open it in Safari).
    three.js and the fonts still load from their CDNs when online; without internet the game
    falls back to its 2D renderer and system fonts, and Exam mode works fully offline."""
-import pathlib, re
+import base64, hashlib, pathlib, re
 
 root = pathlib.Path(__file__).resolve().parent
 html = (root / 'index.html').read_text(encoding='utf-8')
@@ -23,6 +23,11 @@ def inline_css(m):
 
 html = re.sub(r'<script src="([^"]+)"></script>', inline_script, html)
 html = re.sub(r'<link rel="stylesheet" href="([^"]+)">', inline_css, html)
+# the security policy allows only these exact inlined scripts (sha256 hashes), nothing injected later
+hashes = ' '.join("'sha256-" + base64.b64encode(hashlib.sha256(c.encode()).digest()).decode() + "'"
+                  for c in re.findall(r'<script>(.*?)</script>', html, re.S))
+html = html.replace("script-src 'self'", "script-src " + hashes, 1)
+html = html.replace("connect-src 'self'", "connect-src 'none'", 1)
 out = root / 'dist' / 'Exam Streamliner.html'
 out.parent.mkdir(exist_ok=True)
 out.write_text(html, encoding='utf-8')

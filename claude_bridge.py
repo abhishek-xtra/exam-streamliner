@@ -90,7 +90,21 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
         super().end_headers()
+
+    def _servable(self, path):
+        # only the app itself: index.html, exam/, icon/ (never .git, README, backups, the bridge's own code)
+        p = path.split("?")[0].split("#")[0]
+        if p in ("/", "/index.html"):
+            return True
+        parts = [x for x in p.split("/") if x]
+        return (len(parts) >= 2 and parts[0] in ("exam", "icon") and not any(x.startswith(".") or ".." in x for x in parts)
+                and "%" not in p)
 
     def _same_origin(self):
         origin = self.headers.get("Origin")
@@ -106,11 +120,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
+        # Host check on every request blocks DNS-rebinding sites from reading anything through this server
+        if self.headers.get("Host", "") not in {f"localhost:{PORT}", f"127.0.0.1:{PORT}"}:
+            return self._json(403, {"error": "forbidden"})
         if self.path.split("?")[0] == "/api/ai/status":
             if not self._same_origin():
                 return self._json(403, {"ok": False, "reason": "forbidden"})
             return self._json(200, status())
+        if not self._servable(self.path):
+            return self._json(404, {"error": "not found"})
         return super().do_GET()
+
+    def do_HEAD(self):
+        return self._json(405, {"error": "method not allowed"})
 
     def do_POST(self):
         if self.path != "/api/ai/ask":
@@ -175,7 +197,7 @@ if __name__ == "__main__":
         sys.exit(f"Port {PORT} is already in use: the game is probably already running, so just open http://localhost:{PORT}.\n"
                  f"To restart it, stop the other copy (Ctrl + C in its window, or `lsof -ti :{PORT} | xargs kill`), then run this again.")
     s = status()
-    print(f"Loss Arena on http://localhost:{PORT}")
+    print(f"Exam Streamliner on http://localhost:{PORT}")
     print("Ask Claude: " + (f"connected ({s.get('method')}, {s.get('plan') or 'plan'})" if s["ok"]
                             else "Claude Code not ready (" + s["reason"] + "). Install it and run `claude` -> /login."))
     try:
