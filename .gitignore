@@ -1,0 +1,7 @@
+.DS_Store
+.claude/
+tests/node_modules/
+dist/
+index (*).html
+icon/*.icns
+__pycache__/

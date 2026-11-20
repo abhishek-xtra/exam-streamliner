@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26233a"/><stop offset="1" stop-color="#0d0c15"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.52" r="0.5"><stop offset="0" stop-color="#6D5EF5" stop-opacity="0.55"/><stop offset="1" stop-color="#6D5EF5" stop-opacity="0"/></radialGradient>
+<linearGradient id="vi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C4B9FF"/><stop offset="0.5" stop-color="#7E6FFA"/><stop offset="1" stop-color="#4B3FD1"/></linearGradient>
+<linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.35"/><stop offset="0.25" stop-color="#fff" stop-opacity="0.06"/><stop offset="1" stop-color="#fff" stop-opacity="0.02"/></linearGradient>
+<filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000" flood-opacity="0.45"/></filter>
+<clipPath id="sq"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
+<pattern id="grid" width="58" height="58" patternUnits="userSpaceOnUse"><path d="M58 0H0V58" fill="none" stroke="#fff" stroke-opacity="0.045" stroke-width="2"/></pattern></defs><g filter="url(#shadow)"><rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/></g>
+<g clip-path="url(#sq)"><rect x="100" y="100" width="824" height="824" fill="url(#grid)"/><circle cx="512" cy="540" r="420" fill="url(#glow)"/></g>
+<rect x="102" y="102" width="820" height="820" rx="183" fill="none" stroke="url(#rim)" stroke-width="4"/><path d="M512 210 L752 292 V510 Q752 726 512 830 Q272 726 272 510 V292 Z" fill="#6D5EF5" filter="url(#blur)" opacity="0.7"/>
+<path d="M512 210 L752 292 V510 Q752 726 512 830 Q272 726 272 510 V292 Z" fill="url(#vi)"/>
+<path d="M512 250 L716 320 V510 Q716 700 512 792 Q308 700 308 510 V320 Z" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="6"/>
+<path d="M548 318 L410 548 H498 L462 726 L622 476 H530 L586 318 Z" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/></svg>
