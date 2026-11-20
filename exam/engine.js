@@ -173,7 +173,55 @@ XM.go = function (name, params) {
   $$('.xm-nav button', root).forEach(b => b.classList.toggle('on', !!view.c && name !== 'home' && name !== 'notes' && b.dataset.c === view.c));
   const onb = $('.xm-nav button.on', root); if (onb) { const nv = $('.xm-nav', root); nv.scrollLeft = Math.max(0, onb.offsetLeft - nv.offsetLeft - 8); }
   const nt = $('.xm-notes-tab', root); if (nt) nt.classList.toggle('on', name === 'notes' || name === 'study');
+  syncLink();
 };
+/* ---- shareable links: every screen has its own address, e.g. #s=study&c=dsa&p=heaps or #s=practice&c=dsa&tpl=avl&seed=123.
+   Mock exams and marking are never put in a link (they belong to one person's run): those link to the course page. */
+const LINK_KEYS = { home: [], notes: ['q'], course: ['c'], study: ['c', 'p'], papers: ['c'], browse: ['c'], practice: ['c', 'topic', 'tpl', 'seed', 'paper', 'k'] };
+let linkFromUrl = false, lastLink = { name: null, c: null, p: null };
+function linkFor(v) {
+  let name = v.name; if (!LINK_KEYS[name]) name = v.c ? 'course' : 'home';
+  const o = name === 'practice' && !v.paper ? Object.assign({}, v, { tpl: v._tpl || v.tpl, seed: v._seed || v.seed }) : v;
+  const sp = new URLSearchParams(); if (name !== 'home') sp.set('s', name);
+  LINK_KEYS[name].forEach(k => { const x = o[k]; if (x !== undefined && x !== null && x !== '' && (typeof x === 'string' || typeof x === 'number')) sp.set(k, String(x)); });
+  const str = sp.toString(); return { name, hash: str ? '#' + str : '' };
+}
+function syncLink() {
+  if (typeof history === 'undefined' || !history.replaceState) return;
+  const L2 = linkFor(view), url = location.pathname + location.search + L2.hash;
+  if (url === location.pathname + location.search + location.hash) { lastLink = { name: L2.name, c: view.c, p: view.p }; return; }
+  // new history entry when the place changes (Back works); typing in search or "next question" just updates the link
+  const same = lastLink.name === L2.name && lastLink.c === view.c && lastLink.p === view.p;
+  try { history[linkFromUrl || same ? 'replaceState' : 'pushState'](null, '', url); } catch (e) {}
+  lastLink = { name: L2.name, c: view.c, p: view.p };
+}
+// read a link → a screen; anything unknown or broken falls back to the course page or home
+function viewFromLink(hash) {
+  const sp = new URLSearchParams(String(hash || '').replace(/^#/, '')), name = sp.get('s') || 'home';
+  if (!LINK_KEYS[name]) return null;
+  const v = { name }; LINK_KEYS[name].forEach(k => { const x = sp.get(k); if (x !== null && x.length <= 200) v[k] = x; });
+  if ('c' in v && !XM.courses[v.c]) return null;
+  if (name !== 'home' && name !== 'notes' && !v.c) return null;
+  if (v.seed !== undefined) { v.seed = parseInt(v.seed, 10); if (!(v.seed >= 0)) delete v.seed; }
+  if (v.k !== undefined) { v.k = Math.max(0, parseInt(v.k, 10) || 0); }
+  const c = XM.courses[v.c];
+  if (v.tpl && !(c.templates && c.templates[v.tpl])) { delete v.tpl; delete v.seed; }
+  if (v.paper && !(c.papers || []).some(P => P.id === v.paper)) { delete v.paper; delete v.k; }
+  if (v.topic && !(c.topics && c.topics[v.topic])) delete v.topic;
+  if (v.p && !(XM.study[c.id] || []).some(P => P.id === v.p)) delete v.p;
+  return v;
+}
+function openLink(hash) {
+  const v = viewFromLink(hash); if (!v) return false;
+  linkFromUrl = true;
+  try { XM.go(v.name, v); } catch (e) { try { XM.go(v.c ? 'course' : 'home', v.c ? { c: v.c } : {}); } catch (e2) { XM.go('home'); } }
+  linkFromUrl = false; return true;
+}
+if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('hashchange', () => {
+  if (location.hash === linkFor(view).hash) return;          // our own update
+  if (view.name === 'exam' && DB.run && !DB.run.handed) return; // never yank someone out of a running mock exam
+  if (!openLink(location.hash)) { linkFromUrl = true; XM.go('home'); linkFromUrl = false; }
+});
 function shell() {
   root = el(`<div id="xm" class="xm" hidden>
     <header class="xm-top"><div class="xm-topbar"><button class="xm-logo" data-go="home" aria-label="Exam Streamliner home">Exam Streamliner</button>
@@ -316,7 +364,7 @@ function vStudy(v) {
   if (!pages.length) { main.innerHTML = `<section class="xm-card"><p>No Study Hall pages for this course yet.</p></section>`; return; }
   if (DB.readV !== 2) { DB.read = {}; DB.readV = 2; save(); }   /* ticks used to be set just by opening a page */
   DB.read = DB.read || {}; const rd = DB.read[c.id] = DB.read[c.id] || {};
-  const pg = pages.find(p => p.id === v.p) || pages.find(p => !rd[p.id]) || pages[0], i = pages.indexOf(pg);
+  const pg = pages.find(p => p.id === v.p) || pages.find(p => !rd[p.id]) || pages[0], i = pages.indexOf(pg); v.p = pg.id;
   const nav = `<nav class="xm-snav" aria-label="Study Hall pages">${pages.map((p, k) => `<button data-go="study" data-c="${c.id}" data-p="${p.id}" class="${p === pg ? 'on' : ''}${rd[p.id] ? ' read' : ''}"><small>${h(p.slot || '')}</small>${h(p.title)}</button>`).join('')}</nav>
     <select class="xm-ssel" aria-label="Choose a page">${pages.map(p => `<option value="${p.id}"${p === pg ? ' selected' : ''}>${h((p.slot ? p.slot + ' · ' : '') + p.title)}${rd[p.id] ? ' ✓' : ''}</option>`).join('')}</select>`;
   /* every piece of the page is its own block: tap it to zoom (focus reader), or press its speaker to hear it */
@@ -545,7 +593,7 @@ function vPractice(v) {
   const c = XM.courses[v.c]; if (!c) return vHome();
   let q, label;
   if (v.paper) { const P = c.papers.find(p => p.id === v.paper); const Qs = paperQs(c, P); const k = +(v.k || 0); q = Qs[k]; label = `${P.title} · question ${k + 1} of ${Qs.length}`; v.total = Qs.length; }
-  else { const tpl = v.tpl || XM.pick(c, v.topic, v.prev); if (!tpl) { main.innerHTML = '<p>No questions yet.</p>'; return; } q = XM.make(c, tpl, v.seed || L.newSeed()); label = v.topic ? (c.topics[v.topic] || {}).name : v.tpl ? 'One template' : 'Smart practice'; }
+  else { const tpl = v.tpl || XM.pick(c, v.topic, v.prev); if (!tpl) { main.innerHTML = '<p>No questions yet.</p>'; return; } const seed = v.seed || L.newSeed(); q = XM.make(c, tpl, seed); v._tpl = tpl; v._seed = seed; label = v.topic ? (c.topics[v.topic] || {}).name : v.tpl ? 'One template' : 'Smart practice'; }
   const st = { resp: {}, res: {}, checked: false }; XM._cur = q;
   main.appendChild(el(`<div class="xm-crumbs"><button class="xm-link" data-go="course" data-c="${c.id}">← ${h(c.short)}</button><span>${h(label || '')}</span></div>`));
   if (!v.paper) main.appendChild(fightStrip(c));
@@ -646,7 +694,11 @@ function vResult(v) {
 /* ======================= boot ======================= */
 XM.init = function () {
   load(); shell();
-  XM.open({ name: DB.run && !DB.run.handed ? 'exam' : 'home', c: DB.run && DB.run.c, kind: DB.run && DB.run.kind, paper: DB.run && DB.run.paper });
+  const running = DB.run && !DB.run.handed;
+  if (!running && location.hash.length > 1) { document.body.classList.add('xm-open'); root.hidden = false; if (openLink(location.hash)) return; }
+  linkFromUrl = true;
+  XM.open({ name: running ? 'exam' : 'home', c: DB.run && DB.run.c, kind: DB.run && DB.run.kind, paper: DB.run && DB.run.paper });
+  linkFromUrl = false;
 };
 XM.view = () => view;
 XM.toast = m => toast(m);
