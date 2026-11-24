@@ -406,24 +406,59 @@ function vCards(v) {
       CS.key = null; return;
     }
     const card = S.q[S.i], pg = pname[card.p], s0 = st[card.id];
-    const pct = S.total ? Math.round(S.done / S.total * 100) : 0;
+    const pct = S.total ? Math.round(S.done / S.total * 100) : 0, left = S.q.length - S.i;
+    const known = S.tally[1] + S.tally[2] + S.tally[3], cardNo = all.findIndex(x => x.id === card.id) + 1;
+    /* deck row: the current deck first, then the decks with the most due/new cards (five tiles in all) */
+    const groups = []; pages.forEach(p => { const cs = all.filter(x => x.p === p.id); if (cs.length) groups.push({ p, s: deckStats(cs, st, now) }); });
+    const curId = v.deck && v.deck !== 'all' ? v.deck : 'all';
+    const others = groups.filter(g => g.p.id !== curId).sort((x, y) => (y.s.due - x.s.due) || (y.s.nw - x.s.nw)).slice(0, 4);
+    const curStats = curId === 'all' ? deckStats(all, st, now) : (groups.find(g => g.p.id === curId) || {}).s || deckStats(deck, st, now);
+    const mix = s => `<span class="xm-fc-mix" aria-label="${s.known} learned, ${s.n - s.known - s.nw} learning, ${s.nw} new"><i class="k" style="width:${s.known / s.n * 100}%"></i><i class="l" style="width:${(s.n - s.known - s.nw) / s.n * 100}%"></i></span>`;
+    const deckTile = (id, name, s, cur) => `<button class="xm-fc-dt${cur ? ' cur' : ''}" data-dk="${h(id)}" data-m="${s.due + s.nw ? 'due' : 'all'}"${cur ? ' aria-current="true"' : ''}><small>${cur ? 'Studying now' : s.due ? `<em>${s.due} due</em>` : s.nw ? 'New' : 'All learned'}</small><b>${h(name)}</b>${mix(s)}</button>`;
+    const decks = deckTile(curId, curId === 'all' ? 'All cards' : (pname[curId] || {}).title || 'Deck', curStats, true) + others.map(g => deckTile(g.p.id, g.p.title, g.s, false)).join('');
+    const kbd = k => `<kbd>${k}</kbd>`;
     main.innerHTML = crumbs + `<section class="xm-fc" style="${skinStyle(c.id)}">
-      <div class="xm-fc-top"><span>${S.i + 1} / ${S.q.length}</span>${bar(pct / 100)}<span>${v.mode === 'all' ? 'Cram' : 'Due + new'}</span></div>
-      <div class="xm-fc-card${S.flipped ? ' flipped' : ''}" role="button" tabindex="0" aria-label="${S.flipped ? 'Answer shown' : 'Show the answer'}">
-        <div class="xm-fc-meta"><span>${h(c.short)}${pg ? ' · ' + h(pg.slot ? pg.slot + ' · ' : '') + h(pg.title) : ''}</span><span>${s0 ? (s0.b >= 3 ? 'learned' : 'learning') : 'new'}</span></div>
-        <div class="xm-fc-q">${card.q}</div>
-        <div class="xm-fc-a"${S.flipped ? '' : ' hidden'}>${card.a}</div>
-        ${S.flipped ? '' : '<div class="xm-fc-hint">Tap or press Space to show the answer</div>'}
+      <div class="xm-fc-top"><span class="xm-fc-where">${h(c.short)}${pg ? ' · ' + h(pg.title) : ''}</span>${bar(pct / 100)}<span>${S.i + 1} of ${S.q.length}</span></div>
+      <div class="xm-fc-side l"><div class="xm-fc-count again"><span>Again</span><b>${S.tally[0]}</b><small>Back in this session</small></div><p class="xm-fc-tip">Swipe left or press ${kbd('1')}</p></div>
+      <div class="xm-fc-stack${left < 3 ? ' few' + Math.max(0, left - 1) : ''}">
+        <div class="xm-fc-pile p2" aria-hidden="true"></div><div class="xm-fc-pile p1" aria-hidden="true"></div>
+        <div class="xm-fc-card${S.flipped ? ' flipped' : ''}" role="button" tabindex="0" aria-label="${S.flipped ? 'Answer shown' : 'Show the answer'}">
+          ${XM.glyph(c.id)}
+          <div class="xm-fc-meta"><span>${pg && pg.slot ? h(pg.slot) + ' · ' : ''}${s0 ? (s0.b >= 3 ? 'Learned' : 'Learning') : 'New card'}</span><span>${S.flipped ? 'Answer' : 'Front'}</span></div>
+          <div class="xm-fc-q">${card.q}</div>
+          ${S.flipped ? '' : '<div class="xm-fc-hint">Tap or press Space to flip</div>'}
+          <div class="xm-fc-a"${S.flipped ? '' : ' hidden'}>${card.a}</div>
+          <div class="xm-fc-chips">${pg ? `<span>${h(pg.title)}</span>` : ''}<span>Card ${cardNo} of ${all.length}</span></div>
+        </div>
       </div>
-      <div class="xm-fc-rate"${S.flipped ? '' : ' hidden'}>${['Again', 'Hard', 'Good', 'Easy'].map((t, r) => `<button class="xm-btn r${r}" data-r="${r}"><b>${t}</b><small>${nextLabel(card, st, r)} · ${r + 1}</small></button>`).join('')}</div>
-      <div class="xm-row wrap xm-fc-foot">${S.flipped ? '' : '<button class="xm-btn" data-fc="flip">Show answer</button>'}${pg ? `<button class="xm-btn ghost sm" data-go="study" data-c="${c.id}" data-p="${card.p}">Open the notes page</button>` : ''}<button class="xm-btn ghost sm" data-fc="skip">Skip</button><button class="xm-btn ghost sm" data-fc="stop">End session</button></div>
+      <div class="xm-fc-side r"><div class="xm-fc-count known"><span>Known</span><b>${known}</b><small>Next review in 1–4 days</small></div><p class="xm-fc-tip">Swipe right or press ${kbd('3')} · ${kbd('Space')} flips</p></div>
+      <div class="xm-fc-act">${S.flipped
+        ? `<div class="xm-fc-rate">${['Again', 'Hard', 'Good', 'Easy'].map((t, r) => `<button class="xm-btn r${r}" data-r="${r}"><b>${t}</b><small>${nextLabel(card, st, r)} · ${r + 1}</small></button>`).join('')}</div>`
+        : `<div class="xm-fc-front"><button class="xm-btn ghost" data-r="0">Again</button><button class="xm-btn" data-fc="flip">Flip card</button><button class="xm-btn ok" data-r="2">Got it</button></div>`}
+        <div class="xm-fc-foot">${pg ? `<button class="xm-link" data-go="study" data-c="${c.id}" data-p="${card.p}">Open the notes page</button>` : ''}<button class="xm-link" data-fc="skip">Skip</button><button class="xm-link" data-fc="stop">End session</button></div></div>
+      <div class="xm-fc-dk" role="group" aria-label="Decks">${decks}</div>
     </section>`;
     const flip = () => { if (S.flipped) return; S.flipped = true; vCards(v); const r = $('.xm-fc-rate button.r2', main); if (r) r.focus({ preventScroll: true }); };
-    const cd = $('.xm-fc-card', main); cd.onclick = flip; cd.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); flip(); } };
+    const cd = $('.xm-fc-card', main);
+    cd.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); flip(); } };
+    /* swipe / drag: left = Again, right = Good; a tap flips */
+    let x0 = null, dx = 0, moved = false;
+    const sides = [$('.xm-fc-side.l', main), $('.xm-fc-side.r', main)];
+    const tint = () => { sides[0].classList.toggle('hot', dx < -40); sides[1].classList.toggle('hot', dx > 40); };
+    cd.onpointerdown = e => { if (e.button > 0 || (e.target.closest && e.target.closest('a,button,details'))) return; x0 = e.clientX; dx = 0; moved = false; cd.classList.add('drag'); try { cd.setPointerCapture(e.pointerId); } catch (_) {} };
+    cd.onpointermove = e => { if (x0 === null) return; dx = e.clientX - x0; if (Math.abs(dx) > 8) moved = true; cd.style.transform = `translateX(${dx}px)`; tint(); };
+    const end = () => {
+      if (x0 === null) return; x0 = null; cd.classList.remove('drag');
+      if (Math.abs(dx) > 120) { XM.rateCurrent(dx < 0 ? 0 : 2, dx); return; }
+      cd.style.transform = ''; dx = 0; tint();
+    };
+    cd.onpointerup = end; cd.onpointercancel = end;
+    cd.onclick = () => { if (moved) { moved = false; return; } flip(); };
     const fb = $('[data-fc="flip"]', main); if (fb) fb.onclick = flip;
     $('[data-fc="skip"]', main).onclick = () => { S.q.push(S.q.splice(S.i, 1)[0]); S.flipped = false; vCards(v); };
     $('[data-fc="stop"]', main).onclick = () => { S.q.length = S.i; vCards(v); };
-    $$('.xm-fc-rate [data-r]', main).forEach(b => b.onclick = () => XM.rateCurrent(+b.dataset.r));
+    $$('.xm-fc-act [data-r]', main).forEach(b => b.onclick = () => XM.rateCurrent(+b.dataset.r));
+    $$('.xm-fc-dt', main).forEach(b => b.onclick = () => { if (b.classList.contains('cur')) return; CS = null; XM.go('cards', { c: c.id, deck: b.dataset.dk, mode: b.dataset.m }); });
     return;
   }
   /* ---------- deck overview ---------- */
@@ -441,19 +476,31 @@ function vCards(v) {
     <section class="xm-card xm-fc-list" hidden><div class="xm-eyebrow">Every card (tap one to see the answer)</div>${groups.map(g => `<h3>${h(g.p.title)}</h3>${g.cs.map(x => `<details class="xm-chk"><summary>${x.q}</summary><div>${x.a}</div></details>`).join('')}`).join('')}</section>`;
   $('[data-fc="list"]', main).onclick = () => { const l = $('.xm-fc-list', main); l.hidden = !l.hidden; if (!l.hidden) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 }
-XM.rateCurrent = function (r) {
-  const S = CS, v = view; if (!S || v.name !== 'cards' || !v.mode || !S.flipped) return;
+XM.rateCurrent = function (r, dx) {
+  const S = CS, v = view; if (!S || v.name !== 'cards' || !v.mode) return;
+  if (!S.flipped && r !== 0 && r !== 2) return;   /* from the front only Again / Got it */
   const card = S.q[S.i]; rateCard(v.c, card, r); S.tally[r]++;
   if (r === 0 && !S.q.slice(S.i + 1).includes(card)) S.q.splice(Math.min(S.q.length, S.i + 4), 0, card);
   else S.done++;
+  /* the rated card slides out to its side while the next one rises from the pile */
+  const old = $('.xm-fc-card', main), calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ghost = old && !calm ? old.cloneNode(true) : null;
   S.i++; S.flipped = false;
-  vCards(v); window.scrollTo(0, 0);
+  vCards(v);
+  const stack = $('.xm-fc-stack', main), nc = $('.xm-fc-card', main);
+  if (ghost && stack && nc) {
+    ghost.classList.remove('drag'); ghost.classList.add('ghost', r === 0 ? 'out-l' : 'out-r'); ghost.removeAttribute('tabindex'); ghost.setAttribute('aria-hidden', 'true');
+    ghost.style.setProperty('--dx', (dx || 0) + 'px'); ghost.style.transform = '';
+    stack.appendChild(ghost); nc.classList.add('rise');
+    ghost.addEventListener('animationend', () => ghost.remove()); setTimeout(() => ghost.remove(), 600);
+  }
+  const top = $('.xm-fc', main); if (top && top.getBoundingClientRect().top < 0) window.scrollTo(0, 0);
 };
 if (typeof document !== 'undefined') document.addEventListener('keydown', e => {
   if (view.name !== 'cards' || !view.mode || !CS || fz || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.target.closest && e.target.closest('input,textarea,select')) return;
   if ((e.key === ' ' || e.key === 'Enter') && !CS.flipped) { e.preventDefault(); const cd = $('.xm-fc-card', main); if (cd) cd.click(); }
-  else if (CS.flipped && /^[1-4]$/.test(e.key)) { e.preventDefault(); XM.rateCurrent(+e.key - 1); }
+  else if (/^[1-4]$/.test(e.key) && (CS.flipped || e.key === '1' || e.key === '3')) { e.preventDefault(); XM.rateCurrent(CS.flipped ? +e.key - 1 : (e.key === '1' ? 0 : 2)); }
 });
 
 /* ======================= NOTES: every course's Study Hall in one place ======================= */

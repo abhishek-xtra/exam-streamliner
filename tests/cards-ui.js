@@ -38,7 +38,7 @@ const puppeteer = require('puppeteer-core'), path = require('path');
     await p.evaluate(() => XM.go('course', { c: 'pam' }));
     if (!(await p.waitForSelector('.xm-coursehead [data-go="cards"][data-c="pam"]', { timeout: 3000 }).catch(() => null))) fail('no Flashcards button on the course page');
     await p.evaluate(() => { location.hash = '#s=cards&c=ml&deck=l3&mode=all'; }); await sleep(60);
-    if (!(await p.$eval('.xm-fc-meta', e => /Classification/.test(e.textContent)).catch(() => false))) fail('link to a deck session failed');
+    if (!(await p.$eval('.xm-fc-where', e => /Classification/.test(e.textContent)).catch(() => false))) fail('link to a deck session failed');
     errs.forEach(e => fail(`${w}: page error ${e}`));
     await p.evaluate(() => localStorage.removeItem('xm.v1'));
   }
