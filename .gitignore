@@ -6,3 +6,4 @@ index (*).html
 icon/*.icns
 __pycache__/
 tests/shots/
+README (*).md

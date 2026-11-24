@@ -6,6 +6,7 @@ const ROOT = path.join(__dirname, '..');
 global.window = global; global.localStorage = { getItem: () => null, setItem: () => {} };
 ['exam/lib.js', 'exam/engine.js'].concat(fs.readdirSync(path.join(ROOT, 'exam/courses')).filter(f => f.endsWith('.js')).sort((a, b) => (a.includes('-') ? 1 : 0) - (b.includes('-') ? 1 : 0) || a.localeCompare(b)).map(f => 'exam/courses/' + f))
   .concat(fs.readdirSync(path.join(ROOT, 'exam/study')).map(f => 'exam/study/' + f))
+  .concat(fs.readdirSync(path.join(ROOT, 'exam/cards')).map(f => 'exam/cards/' + f))
   .forEach(f => vm.runInThisContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), { filename: f }));
 const XM = global.XM, L = XM.lib;
 const only = process.argv[2], SEEDS = +(process.argv[3] || 150);
@@ -144,5 +145,12 @@ Object.entries(XM.study || {}).forEach(([cid, pages]) => { if (only && only !== 
     if (p.fig) { try { const s = p.fig(XM.lib); if (!/<svg/.test(s)) fail(`study ${cid}/${p.id}: figure has no svg`); } catch (e) { fail(`study ${cid}/${p.id}: figure threw ${e.message}`); } }
     const txt = JSON.stringify(p); if (/undefined|NaN(?!\))/.test(txt)) fail(`study ${cid}/${p.id}: undefined/NaN in text`); });
   console.log(`== study ${cid}: ${pages.length} pages`); });
+/* ---- flashcards: every card names a real Study Hall page, has both sides, unique ids, and is loaded by index.html ---- */
+{ const idx = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8'); let n = 0;
+  fs.readdirSync(path.join(ROOT, 'exam/cards')).forEach(f => { if (!idx.includes('exam/cards/' + f)) fail('index.html does not load exam/cards/' + f); });
+  XM.order.forEach(cid => { if (only && cid !== only) return; const pages = new Set((XM.study[cid] || []).map(p => p.id));
+    (XM.cards[cid] || []).forEach(([p, q, a], i) => { checks++; if (!pages.has(p)) fail(`cards ${cid}#${i}: no Study Hall page ${p}`); if (!q || !a || !String(q).trim() || !String(a).trim()) fail(`cards ${cid}#${i}: empty side`); if (/undefined/.test(q + a)) fail(`cards ${cid}#${i}: undefined`); });
+    const d = XM.deck(cid); n += d.length; if (!d.length) fail('no flashcards for ' + cid); if (new Set(d.map(c => c.id)).size !== d.length) fail('duplicate card ids in ' + cid); });
+  console.log(`\n== Flashcards: ${n} cards`); }
 console.log(`\n${checks} questions checked, ${fails} failures`);
 process.exit(fails ? 1 : 0);

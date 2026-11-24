@@ -12,6 +12,28 @@ Open `index.html` in any modern browser (no install, no build step). For the Ask
 
 **18.11.2026: banner.** The top of the screen is a deep ink-teal banner with rounded bottom corners: the wordmark, the six courses as chips with their own glyph (the current one fills with its colour), the mint Notes pill, the theme button, and a rolling countdown strip to every exam underneath (pauses on hover; hidden during mock exams; folds away when you scroll). At the top of Home the banner fills the whole screen (course glyphs pop in, "EXAM STREAMLINER" rises letter by letter, the next exam is named, "Scroll to start"). **The morph is driven by your scrolling:** scrolling down shrinks it into the top bar while the wordmark glides into the logo and the home content rises underneath; scrolling back up plays it in reverse. Opening the app starts at the full-screen banner; returning to Home from another screen lands on the dashboard (the banner is still above if you scroll up). "Reduce motion" removes it.
 
+## TODO: flashcard redesign — "Deck Stack" (planned 24.11.2026, not built yet)
+
+Design mockup: https://claude.ai/artifact/YJ5qgXrcsRKSPtYWwpBpeJ (artboard **B · Deck Stack**). Restyle the existing flashcard study screen (`.xm-fc*` in `exam/exam.css`, the study view around `xm-fc-card` in `exam/engine.js`). Keep the spaced-repetition logic, ratings, saves and keyboard keys exactly as they are; this is a look-and-layout change in the PAPER SKIN language (flat 20–24px tiles, tone steps instead of lines/shadows, one pill button shape, Inter Tight 800–900 headlines, Atkinson Hyperlegible for reading text, sentence case). No rotation, wobble, drop shadows, emoji or cartoon icons. Must work in light and dark theme and respect "reduce motion".
+
+**Layout (desktop, three columns: 220px · flexible · 220px):**
+1. **Progress row** above the columns: "Course · topic" on the left, the existing mint/gold `xm-bar`, "12 of 30" on the right.
+2. **Centre: the card.** Flat course-colour tile (`--tile` / `--tile-fg`, radius 24px, padding 26px 30px). Course glyph (`XM.glyph`) huge and faint (~8% opacity) bleeding off the bottom-right corner. Top meta line (13.5px, 80% opacity): exam frequency + exam slot on the left, "Front" / "Answer" on the right. Question in Inter Tight 800, ~38px. Optional one-line hint under it. Chips at the bottom (topic, card number) as pills with a 14% `--tile-fg` background. Answer appears under a 2px divider when flipped (as now).
+3. **The pile behind the card:** two straight strips peeking out under the card (no tilt): the nearer one inset 18px each side, 12px lower, a mid pastel of the course colour; the further one inset 36px, 24px lower, a lighter pastel. Derive both with `color-mix(in srgb, var(--tile) X%, var(--ink))`. When the deck has fewer than 3 cards left, hide one or both strips.
+4. **Action row under the card:** three equal pills, 52px tall. Before flip: Again (ghost `--panel`), **Flip card** (`--brand` / `--on-brand`), Got it (`--mint`). After flip: swap to the existing four rating pills Again / Hard / Good / Easy with their "next review" labels.
+5. **Left column:** a `--stage` tile "Again" with a big Inter Tight 900 count in `--loss` and "Back in this session"; below it a small hint "Swipe left or press 1" with a `kbd` chip.
+6. **Right column:** a `--stage` tile "Known" with the count in `--mint` and "Next review in 1–4 days"; hint "Swipe right or press 3 · Space flips".
+7. **Deck row at the bottom:** five equal tiles (radius 20px). The current deck is filled with the course colour ("Studying now"); the others are `--stage` tiles with "N due" (in `--loss`) or "New", the deck name in Inter Tight 800 16px, and a 6px mastery bar (mint = known, gold = learning) like `.xm-fc-mix`. Clicking one switches deck.
+
+**Interaction:**
+- Swipe / drag the card (pointer events): left past ~120px = rating 0 (Again), right = rating 2 (Good). While dragging, the card follows the pointer horizontally only, and the Again or Known tile on that side gets a light tint. Release before the threshold springs back.
+- On rating, the card slides out to that side (~250ms), the next card rises from the pile strip, and the counts tick up. With reduce motion: no slide, just swap.
+- Space/Enter flips; 1–4 rate (as now). Touch: tap flips, swipe rates.
+
+**Phone (≤640px):** one column: progress row, card, action pills, then the Again/Known tiles side by side, then the deck row as a horizontal scroller.
+
+When done, move this section into the dated changelog style used above and update the screenshots/notes.
+
 ## Exam mode (rebuild for the Period 2 exams, from 17.11.2026)
 The app opens on an exam-countdown home screen, then per course **Study Hall**, **Smart practice**, **Mock exam** and **Past papers**.
 The previous version is kept as `index (before exam rebuild).html`.

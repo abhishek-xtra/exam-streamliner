@@ -168,7 +168,7 @@ XM.go = function (name, params) {
   if (fz) focusClose(); try { if (XM.tts) XM.tts.stop(); } catch (e) {}
   try { renderTicker(); } catch (e) {}
   view = Object.assign({ name }, params || {}); if (timerId && name !== 'exam') { clearInterval(timerId); timerId = null; }
-  const R = { notes: vNotes, study: vStudy, home: vHome, course: vCourse, practice: vPractice, exam: vExam, mark: vMark, result: vResult, papers: vPapers, browse: vBrowse }[name] || vHome;
+  const R = { notes: vNotes, study: vStudy, cards: vCards, home: vHome, course: vCourse, practice: vPractice, exam: vExam, mark: vMark, result: vResult, papers: vPapers, browse: vBrowse }[name] || vHome;
   main.innerHTML = ''; R(view); root.scrollTop = 0; main.scrollTop = 0; window.scrollTo(0, 0);
   $$('.xm-nav button', root).forEach(b => b.classList.toggle('on', !!view.c && name !== 'home' && name !== 'notes' && b.dataset.c === view.c));
   const onb = $('.xm-nav button.on', root); if (onb) { const nv = $('.xm-nav', root); nv.scrollLeft = Math.max(0, onb.offsetLeft - nv.offsetLeft - 8); }
@@ -177,7 +177,7 @@ XM.go = function (name, params) {
 };
 /* ---- shareable links: every screen has its own address, e.g. #s=study&c=dsa&p=heaps or #s=practice&c=dsa&tpl=avl&seed=123.
    Mock exams and marking are never put in a link (they belong to one person's run): those link to the course page. */
-const LINK_KEYS = { home: [], notes: ['q'], course: ['c'], study: ['c', 'p'], papers: ['c'], browse: ['c'], practice: ['c', 'topic', 'tpl', 'seed', 'paper', 'k'] };
+const LINK_KEYS = { home: [], notes: ['q'], course: ['c'], study: ['c', 'p'], cards: ['c', 'deck', 'mode'], papers: ['c'], browse: ['c'], practice: ['c', 'topic', 'tpl', 'seed', 'paper', 'k'] };
 let linkFromUrl = false, lastLink = { name: null, c: null, p: null };
 function linkFor(v) {
   let name = v.name; if (!LINK_KEYS[name]) name = v.c ? 'course' : 'home';
@@ -209,6 +209,7 @@ function viewFromLink(hash) {
   if (v.paper && !(c.papers || []).some(P => P.id === v.paper)) { delete v.paper; delete v.k; }
   if (v.topic && !(c.topics && c.topics[v.topic])) delete v.topic;
   if (v.p && !(XM.study[c.id] || []).some(P => P.id === v.p)) delete v.p;
+  if (v.mode && !['due', 'all'].includes(v.mode)) delete v.mode;
   return v;
 }
 function openLink(hash) {
@@ -288,7 +289,7 @@ function vHome() {
   if (next) { const ms = new Date(next.exam.date) - now, d = daysLeft(ms), r = XM.readiness(next), weak = XM.weakest(next, 3), hist = (DB.hist[next.id] || []).slice(-1)[0];
     s += `<section class="xm-home-head"><h1 class="xm-display">${d.u ? `${d.n} ${d.u} to ${h(next.short)}.` : `${h(next.short)} is today.`}</h1>
       <p class="xm-sub">${h(next.name)} · ${fmtDate(next.exam.date)} · ${h(next.exam.format)}</p>
-      <div class="xm-row wrap"><button class="xm-btn" data-go="study" data-c="${next.id}">Open the Study Hall</button><button class="xm-btn ghost" data-go="practice" data-c="${next.id}">Smart practice</button>${next.mock ? `<button class="xm-btn ghost" data-go="exam" data-c="${next.id}" data-kind="mock">Mock exam</button>` : ''}${next.papers.length ? `<button class="xm-btn ghost" data-go="papers" data-c="${next.id}">Past papers</button>` : ''}</div></section>`;
+      <div class="xm-row wrap"><button class="xm-btn" data-go="study" data-c="${next.id}">Open the Study Hall</button><button class="xm-btn ghost" data-go="cards" data-c="${next.id}">Flashcards</button><button class="xm-btn ghost" data-go="practice" data-c="${next.id}">Smart practice</button>${next.mock ? `<button class="xm-btn ghost" data-go="exam" data-c="${next.id}" data-kind="mock">Mock exam</button>` : ''}${next.papers.length ? `<button class="xm-btn ghost" data-go="papers" data-c="${next.id}">Past papers</button>` : ''}</div></section>`;
     s += `<section class="xm-board"><div class="xm-bigtile" style="${skinStyle(next.id)}">${XM.glyph(next.id)}
         <div class="xm-bt-top"><b>${h(next.name)}</b><span>${h(next.code)} · ${h(next.exam.where || '')}</span></div>
         <div class="xm-bt-num"><b>${d.n}</b><span>${d.u ? d.u + ' left' : ''}</span></div>
@@ -308,7 +309,7 @@ function vCourse(v) {
   const tops = Object.entries(c.topics).map(([k, t]) => ({ k, t, m: XM.topicMastery(c, k) })).filter(x => x.m);
   const dl = c.exam ? daysLeft(new Date(c.exam.date) - Date.now()) : null;
   let s = `<section class="xm-coursehead" style="${skinStyle(c.id)}">${XM.glyph(c.id)}<p class="xm-ch-code">${h(c.code)}${c.exam ? ' · ' + fmtDate(c.exam.date) : ''}${dl && dl.u ? ` · <b>${dl.n} ${dl.u} left</b>` : ''}</p><h1>${h(c.name)}</h1><p class="xm-ch-format">${h(c.exam ? c.exam.format : '')}</p>
-    <div class="xm-row wrap"><button class="xm-btn tile" data-go="study" data-c="${c.id}">Study Hall · ${(XM.study[c.id] || []).length} pages</button><button class="xm-btn tile ghost" data-go="practice" data-c="${c.id}">Smart practice</button>${c.mock ? `<button class="xm-btn tile ghost" data-go="exam" data-c="${c.id}" data-kind="mock">Mock exam · ${c.mock.minutes} min · ${c.mock.points} p</button>` : ''}${c.papers.length ? `<button class="xm-btn tile ghost" data-go="papers" data-c="${c.id}">Past papers · ${c.papers.length}</button>` : ''}<button class="xm-btn tile ghost" data-go="browse" data-c="${c.id}">All question types</button></div></section>`;
+    <div class="xm-row wrap"><button class="xm-btn tile" data-go="study" data-c="${c.id}">Study Hall · ${(XM.study[c.id] || []).length} pages</button><button class="xm-btn tile ghost" data-go="cards" data-c="${c.id}">Flashcards · ${(() => { const k = XM.cardStats(c.id); return k.due ? k.due + ' due' : k.n + ' cards'; })()}</button><button class="xm-btn tile ghost" data-go="practice" data-c="${c.id}">Smart practice</button>${c.mock ? `<button class="xm-btn tile ghost" data-go="exam" data-c="${c.id}" data-kind="mock">Mock exam · ${c.mock.minutes} min · ${c.mock.points} p</button>` : ''}${c.papers.length ? `<button class="xm-btn tile ghost" data-go="papers" data-c="${c.id}">Past papers · ${c.papers.length}</button>` : ''}<button class="xm-btn tile ghost" data-go="browse" data-c="${c.id}">All question types</button></div></section>`;
   if (c.exam && c.exam.notes) s += `<section class="xm-card"><div class="xm-eyebrow">How the exam works</div>${c.exam.notes}</section>`;
   /* topic tiles: colour strength = how often the topic is in past papers (deep / pastel / paper) */
   const ring = (m) => { const C = 2 * Math.PI * 22, d = (C * Math.max(0, Math.min(1, m))).toFixed(1); return `<svg class="xm-ring" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="22" class="tr"/><circle cx="28" cy="28" r="22" class="fg" stroke-dasharray="${d} ${C.toFixed(1)}"/></svg>`; };
@@ -337,6 +338,123 @@ function vPapers(v) {
 }
 
 
+
+/* ======================= FLASHCARDS =======================
+   XM.cards[courseId] = [[studyPageId, front html, back html]] (exam/cards/*.js), plus every Study Hall
+   "Check yourself" question. Spaced repetition (Leitner boxes 0..5) in DB.cards[cid][cardId] = {b, due, n, lapse}.
+   A session = due cards first, then up to 20 new ones; "Again" puts the card back three places later. */
+XM.cards = XM.cards || {};
+const CARD_IV = [0, 1, 3, 7, 16, 35];   /* days per box */
+function cardHash(s) { let x = 5381; for (let i = 0; i < s.length; i++) x = (x * 33 ^ s.charCodeAt(i)) >>> 0; return x.toString(36); }
+XM.deck = function (cid) {
+  const pages = XM.study[cid] || [], byId = {}; pages.forEach(p => { byId[p.id] = p; });
+  const out = [], seen = new Set();
+  const add = (pid, q, a, auto) => { const id = pid + '-' + cardHash(L.norm(String(q).replace(/<[^>]+>/g, ' '))); if (seen.has(id)) return; seen.add(id); out.push({ id, p: pid, q, a, auto: !!auto }); };
+  (XM.cards[cid] || []).forEach(([pid, q, a]) => add(pid, q, a));
+  pages.forEach(p => (p.check || []).forEach(([q, a]) => add(p.id, q, a, true)));
+  /* keep the Study Hall's (= the exam's) order */
+  const ord = {}; pages.forEach((p, i) => { ord[p.id] = i; });
+  return out.map((c, i) => [c, i]).sort((x, y) => ((ord[x[0].p] ?? 999) - (ord[y[0].p] ?? 999)) || x[1] - y[1]).map(x => x[0]);
+};
+function cardDB(cid) { DB.cards = DB.cards || {}; return DB.cards[cid] = DB.cards[cid] || {}; }
+function deckStats(cards, st, now) {
+  let nw = 0, due = 0, known = 0; cards.forEach(c => { const s = st[c.id]; if (!s) nw++; else { if (s.due <= now) due++; if (s.b >= 3) known++; } });
+  return { n: cards.length, nw, due, known };
+}
+XM.cardStats = function (cid) { return deckStats(XM.deck(cid), cardDB(cid), Date.now()); };
+function rateCard(cid, card, r) {   /* r: 0 again · 1 hard · 2 good · 3 easy */
+  const st = cardDB(cid), s = st[card.id] = st[card.id] || { b: 0, due: 0, n: 0, lapse: 0 }, now = Date.now();
+  s.n++;
+  if (r === 0) { if (s.b > 0) s.lapse++; s.b = 0; s.due = now + 10 * 6e4; }
+  else if (r === 1) { s.b = Math.max(1, s.b); s.due = now + Math.max(6 * 36e5, CARD_IV[s.b] * 864e5 / 2); }
+  else { s.b = Math.min(5, Math.max(1, s.b + r - 1)); s.due = now + CARD_IV[s.b] * 864e5; }
+  save();
+}
+function nextLabel(card, st, r) {
+  const s = st[card.id] || { b: 0 };
+  if (r === 0) return '10 min';
+  const d = r === 1 ? Math.max(.25, CARD_IV[Math.max(1, s.b)] / 2) : CARD_IV[Math.min(5, Math.max(1, s.b + r - 1))];
+  return d < 1 ? Math.round(d * 24) + ' h' : d + (d === 1 ? ' day' : ' days');
+}
+let CS = null;   /* the running session (not saved: a reload starts a fresh one) */
+function vCards(v) {
+  const c = XM.courses[v.c]; if (!c) return vHome();
+  const pages = XM.study[c.id] || [], pname = {}; pages.forEach(p => { pname[p.id] = p; });
+  const all = XM.deck(c.id), st = cardDB(c.id), now = Date.now();
+  if (!all.length) { main.innerHTML = `<section class="xm-card"><p>No flashcards for this course yet.</p></section>`; return; }
+  if (v.deck && v.deck !== 'all' && !all.some(x => x.p === v.deck)) delete v.deck;
+  const deck = v.deck && v.deck !== 'all' ? all.filter(x => x.p === v.deck) : all;
+  const crumbs = `<div class="xm-crumbs"><button class="xm-link" data-go="course" data-c="${c.id}">← ${h(c.short)}</button><span>Flashcards${v.deck && v.deck !== 'all' && pname[v.deck] ? ' · ' + h(pname[v.deck].title) : ''}</span></div>`;
+  /* ---------- a running session ---------- */
+  if (v.mode) {
+    const key = c.id + '|' + (v.deck || 'all') + '|' + v.mode;
+    if (!CS || CS.key !== key) {
+      let q;
+      if (v.mode === 'all') q = L.rng((Math.random() * 1e9) | 0).shuffle(deck.slice());
+      else { const due = deck.filter(x => st[x.id] && st[x.id].due <= now).sort((a, b) => st[a.id].due - st[b.id].due), fresh = deck.filter(x => !st[x.id]).slice(0, 20); q = due.concat(fresh); }
+      CS = { key, q, i: 0, flipped: false, done: 0, tally: [0, 0, 0, 0], total: q.length };
+    }
+    const S = CS;
+    if (S.i >= S.q.length) {
+      const ds = deckStats(deck, st, Date.now());
+      main.innerHTML = crumbs + `<section class="xm-card xm-fc-end" style="${skinStyle(c.id)}"><div class="xm-eyebrow">${S.total ? 'Session done' : 'Nothing due'}</div>
+        <h1>${S.total ? `${S.done} card${S.done === 1 ? '' : 's'} reviewed.` : 'All caught up.'}</h1>
+        ${S.total ? `<p class="xm-fc-tally"><span class="r0">Again ${S.tally[0]}</span><span class="r1">Hard ${S.tally[1]}</span><span class="r2">Good ${S.tally[2]}</span><span class="r3">Easy ${S.tally[3]}</span></p>` : `<p class="xm-muted">No cards are due in this deck right now. ${ds.nw ? '' : 'Cram the whole deck if you want another pass.'}</p>`}
+        <p class="xm-muted">${ds.known} of ${ds.n} cards learned · ${ds.due} due · ${ds.nw} new</p>
+        <div class="xm-row wrap">${ds.due || ds.nw ? `<button class="xm-btn" data-fc="again">Study ${ds.due + Math.min(20, ds.nw)} more</button>` : ''}<button class="xm-btn ghost" data-go="cards" data-c="${c.id}" data-deck="${h(v.deck || 'all')}" data-mode="all">Cram all ${deck.length}</button><button class="xm-btn ghost" data-go="cards" data-c="${c.id}">All decks</button></div></section>`;
+      const ag = $('[data-fc="again"]', main); if (ag) ag.onclick = () => { CS = null; XM.go('cards', { c: c.id, deck: v.deck, mode: 'due' }); };
+      CS.key = null; return;
+    }
+    const card = S.q[S.i], pg = pname[card.p], s0 = st[card.id];
+    const pct = S.total ? Math.round(S.done / S.total * 100) : 0;
+    main.innerHTML = crumbs + `<section class="xm-fc" style="${skinStyle(c.id)}">
+      <div class="xm-fc-top"><span>${S.i + 1} / ${S.q.length}</span>${bar(pct / 100)}<span>${v.mode === 'all' ? 'Cram' : 'Due + new'}</span></div>
+      <div class="xm-fc-card${S.flipped ? ' flipped' : ''}" role="button" tabindex="0" aria-label="${S.flipped ? 'Answer shown' : 'Show the answer'}">
+        <div class="xm-fc-meta"><span>${h(c.short)}${pg ? ' · ' + h(pg.slot ? pg.slot + ' · ' : '') + h(pg.title) : ''}</span><span>${s0 ? (s0.b >= 3 ? 'learned' : 'learning') : 'new'}</span></div>
+        <div class="xm-fc-q">${card.q}</div>
+        <div class="xm-fc-a"${S.flipped ? '' : ' hidden'}>${card.a}</div>
+        ${S.flipped ? '' : '<div class="xm-fc-hint">Tap or press Space to show the answer</div>'}
+      </div>
+      <div class="xm-fc-rate"${S.flipped ? '' : ' hidden'}>${['Again', 'Hard', 'Good', 'Easy'].map((t, r) => `<button class="xm-btn r${r}" data-r="${r}"><b>${t}</b><small>${nextLabel(card, st, r)} · ${r + 1}</small></button>`).join('')}</div>
+      <div class="xm-row wrap xm-fc-foot">${S.flipped ? '' : '<button class="xm-btn" data-fc="flip">Show answer</button>'}${pg ? `<button class="xm-btn ghost sm" data-go="study" data-c="${c.id}" data-p="${card.p}">Open the notes page</button>` : ''}<button class="xm-btn ghost sm" data-fc="skip">Skip</button><button class="xm-btn ghost sm" data-fc="stop">End session</button></div>
+    </section>`;
+    const flip = () => { if (S.flipped) return; S.flipped = true; vCards(v); const r = $('.xm-fc-rate button.r2', main); if (r) r.focus({ preventScroll: true }); };
+    const cd = $('.xm-fc-card', main); cd.onclick = flip; cd.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); flip(); } };
+    const fb = $('[data-fc="flip"]', main); if (fb) fb.onclick = flip;
+    $('[data-fc="skip"]', main).onclick = () => { S.q.push(S.q.splice(S.i, 1)[0]); S.flipped = false; vCards(v); };
+    $('[data-fc="stop"]', main).onclick = () => { S.q.length = S.i; vCards(v); };
+    $$('.xm-fc-rate [data-r]', main).forEach(b => b.onclick = () => XM.rateCurrent(+b.dataset.r));
+    return;
+  }
+  /* ---------- deck overview ---------- */
+  CS = null;
+  const ds = deckStats(all, st, now), groups = [];
+  pages.forEach(p => { const cs = all.filter(x => x.p === p.id); if (cs.length) groups.push({ p, cs, s: deckStats(cs, st, now) }); });
+  const learnedBar = s => `<span class="xm-fc-mix" aria-label="${s.known} learned, ${s.n - s.known - s.nw} learning, ${s.nw} new"><i class="k" style="width:${s.known / s.n * 100}%"></i><i class="l" style="width:${(s.n - s.known - s.nw) / s.n * 100}%"></i></span>`;
+  main.innerHTML = crumbs + `<section class="xm-coursehead xm-fc-head" style="${skinStyle(c.id)}">${XM.glyph(c.id)}<p class="xm-ch-code">${h(c.code)} · Flashcards</p><h1>Flashcards</h1>
+      <p class="xm-ch-format">${ds.n} cards built from the Study Hall, in exam order. Cards you know come back after days, cards you miss come back in the same session.</p>
+      <div class="xm-fc-kpis"><div><b>${ds.due}</b><span>due now</span></div><div><b>${ds.nw}</b><span>new</span></div><div><b>${ds.known}</b><span>learned</span></div></div>
+      <div class="xm-row wrap"><button class="xm-btn tile" data-go="cards" data-c="${c.id}" data-deck="all" data-mode="due"${ds.due + ds.nw ? '' : ' disabled'}>Study ${ds.due + Math.min(20, ds.nw)} cards</button><button class="xm-btn tile ghost" data-go="cards" data-c="${c.id}" data-deck="all" data-mode="all">Cram all ${ds.n}</button><button class="xm-btn tile ghost" data-fc="list">See every card</button></div></section>
+    <h2 class="xm-h2">Decks</h2><p class="xm-muted xm-fc-key"><span><i class="k"></i>learned</span><span><i class="l"></i>learning</span><span><i class="n"></i>new</span><span>· one deck per Study Hall page</span></p>
+    <div class="xm-fc-decks">${groups.map(g => `<div class="xm-fc-deck"><div><small>${h(g.p.slot || '')}</small><b>${h(g.p.title)}</b><span class="xm-muted">${g.s.n} card${g.s.n === 1 ? '' : 's'}${g.s.due ? ` · <b class="due">${g.s.due} due</b>` : ''}${g.s.nw ? ` · ${g.s.nw} new` : ''}</span>${learnedBar(g.s)}</div>
+      <div class="xm-row"><button class="xm-btn sm" data-go="cards" data-c="${c.id}" data-deck="${g.p.id}" data-mode="due"${g.s.due + g.s.nw ? '' : ' disabled'}>Study</button><button class="xm-btn ghost sm" data-go="cards" data-c="${c.id}" data-deck="${g.p.id}" data-mode="all">Cram</button></div></div>`).join('')}</div>
+    <section class="xm-card xm-fc-list" hidden><div class="xm-eyebrow">Every card (tap one to see the answer)</div>${groups.map(g => `<h3>${h(g.p.title)}</h3>${g.cs.map(x => `<details class="xm-chk"><summary>${x.q}</summary><div>${x.a}</div></details>`).join('')}`).join('')}</section>`;
+  $('[data-fc="list"]', main).onclick = () => { const l = $('.xm-fc-list', main); l.hidden = !l.hidden; if (!l.hidden) l.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+}
+XM.rateCurrent = function (r) {
+  const S = CS, v = view; if (!S || v.name !== 'cards' || !v.mode || !S.flipped) return;
+  const card = S.q[S.i]; rateCard(v.c, card, r); S.tally[r]++;
+  if (r === 0 && !S.q.slice(S.i + 1).includes(card)) S.q.splice(Math.min(S.q.length, S.i + 4), 0, card);
+  else S.done++;
+  S.i++; S.flipped = false;
+  vCards(v); window.scrollTo(0, 0);
+};
+if (typeof document !== 'undefined') document.addEventListener('keydown', e => {
+  if (view.name !== 'cards' || !view.mode || !CS || fz || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest && e.target.closest('input,textarea,select')) return;
+  if ((e.key === ' ' || e.key === 'Enter') && !CS.flipped) { e.preventDefault(); const cd = $('.xm-fc-card', main); if (cd) cd.click(); }
+  else if (CS.flipped && /^[1-4]$/.test(e.key)) { e.preventDefault(); XM.rateCurrent(+e.key - 1); }
+});
 
 /* ======================= NOTES: every course's Study Hall in one place ======================= */
 function vNotes(v) {
