@@ -1,4 +1,4 @@
-/* ELEC-A7200 Signals and Systems — exam Tue 1.12.2026 (time and room: check Sisu). Pen & paper + equation sheet.
+/* ELEC-A7200 Signals and Systems — exam Mon 1.2.2027 (time and room: check Sisu). Pen & paper + equation sheet.
    The 8 templates of A7200-exam-playbook (T1–T8) plus the 6-question multiple-choice warm-up that
    appeared in the 26.8.2026 exam, all as generators with new numbers. Equation-sheet conventions:
    sinc(x) = sin(πx)/(πx); rect(t/a) ↔ a·sinc(af); tria(t/T) (half-width T) ↔ T·sinc²(Tf);
@@ -147,7 +147,7 @@ function gWarm(r) {
 XM.register({
   id: 'ss', code: 'ELEC-A7200', name: 'Signals and Systems', short: 'S&S', accent: '#6FA8FF', arena: 'ELEC-A7200',
   bosses: ['The Line Spectrum', 'Sinc Sovereign', 'The Orthonormal', 'The Aliaser', 'The FFT', 'The Filter Bank', 'White Noise', 'The Examiner'],
-  exam: { date: '2026-12-01T09:00:00', tentative: true, where: 'pen & paper with the equation sheet (time and room: check Sisu; PAM is 13–16 the same day)', format: 'Pen & paper with the equation sheet: 5 problems of ~6 p (26.8.2026: P1 = 6 multiple-choice questions, all compulsory).',
+  exam: { date: '2027-02-01T09:00:00', tentative: true, where: 'pen & paper with the equation sheet, Mon 1.2.2027 (time and room: check Sisu)', format: 'Pen & paper with the equation sheet: 5 problems of ~6 p (26.8.2026: P1 = 6 multiple-choice questions, all compulsory).',
     notes: '<p>Optional retake. Every problem comes from 8 templates (T1–T8, see your <i>A7200-exam-playbook</i>); all are generators here with new numbers each time, plus the new <b>multiple-choice warm-up</b>.</p>' },
   topics: { t1: { name: 'T1 Fourier series + Parseval', slot: 'every paper', weight: 1, freq: '7/7 recent papers' }, t2: { name: 'T2 FT of a pulse', slot: 'MT1 / exam', weight: .9 }, t3: { name: 'T3 Convolution', slot: 'MT1 / exam', weight: .9 }, t4: { name: 'T4 Inner product / Gram–Schmidt', slot: 'MT1', weight: .6 },
     t5: { name: 'T5 Sampling / DFT', slot: 'MT2 / exam', weight: .9 }, t6: { name: 'T6 First-order LTI', slot: 'MT2 / exam', weight: .8 }, t7: { name: 'T7 Non-linear / Butterworth', slot: 'MT2', weight: .4 }, t8: { name: 'T8 Random signals', slot: 'MT2', weight: .5 }, mcq: { name: 'MCQ warm-up', slot: 'P1 (new)', weight: .7 } },

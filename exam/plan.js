@@ -9,7 +9,7 @@ XM.plan = [
     { t: 'Check in Sisu what time the BA1 exam is on 2.12.' },
     { t: 'ML: check that your EXAM slot on Fri 11.12 is booked (exam.aalto.fi).' } ] },
   { from: '2026-11-17', to: '2026-11-18', tasks: [
-    { t: 'S&S is on Tue 1.12, the same day as PAM (13–16): check the S&S time and room in Sisu now.' },
+    { t: 'S&S moved to Mon 1.2.2027: check the S&S time and room in Sisu.' },
     { t: 'DSA Q2: identify-the-sort drills until every sort is automatic', c: 'dsa', go: 'practice' },
     { t: 'DSA: re-sit the 1.12.2025 paper question by question', c: 'dsa', go: 'papers' } ] },
   { from: '2026-11-19', to: '2026-11-20', tasks: [
@@ -35,9 +35,8 @@ XM.plan = [
     { t: 'Night before DSA: one mock exam in the morning, then only weak spots — no new topics', c: 'dsa', go: 'exam', kind: 'mock' } ] },
   { from: '2026-11-30', to: '2026-11-30', tasks: [
     { t: 'DSA exam 17:00–20:00. Warm up with two quick questions, no more.', c: 'dsa', go: 'practice' },
-    { t: 'After the exam: PAM checklist + the S&S equation-sheet conventions (both exams tomorrow)', c: 'pam', go: 'course' } ] },
+    { t: 'After the exam: PAM checklist (exam tomorrow)', c: 'pam', go: 'course' } ] },
   { from: '2026-12-01', to: '2026-12-01', tasks: [
-    { t: 'S&S exam (time and room in Sisu; bring the equation sheet rules in your head: Parseval for FS is not on it)', c: 'ss', go: 'course' },
     { t: 'PAM exam 13–16 in Y430 (SchoolYear)', c: 'pam', go: 'course' },
     { t: 'Evening: BA1 sensitivity reports and LP formulations', c: 'ba1', go: 'practice' } ] },
   { from: '2026-12-02', to: '2026-12-02', tasks: [
@@ -53,6 +52,10 @@ XM.plan = [
   { from: '2026-12-10', to: '2026-12-10', tasks: [
     { t: 'ML: last mock exam, then only weak spots', c: 'ml', go: 'exam', kind: 'mock' } ] },
   { from: '2026-12-11', to: '2026-12-11', tasks: [
-    { t: 'ML retake (EXAM room, 2 h). Bring only your student card and know your Aalto username.', c: 'ml', go: 'course' } ] }
+    { t: 'ML retake (EXAM room, 2 h). Bring only your student card and know your Aalto username.', c: 'ml', go: 'course' } ] },
+  { from: '2027-01-25', to: '2027-01-31', tasks: [
+    { t: 'S&S: one timed mock exam (26.8.2026 format), then only weak spots', c: 'ss', go: 'exam', kind: 'mock' } ] },
+  { from: '2027-02-01', to: '2027-02-01', tasks: [
+    { t: 'S&S exam (time and room in Sisu; bring the equation sheet rules in your head: Parseval for FS is not on it)', c: 'ss', go: 'course' } ] }
 ];
 })(typeof window !== 'undefined' ? window : globalThis);
