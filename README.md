@@ -35,14 +35,14 @@ The previous version is kept as `index (before exam rebuild).html`.
 - **Notes tab** (📖 in the Exam-mode top bar): all six Study Halls in one index with read ticks, plus a search across every note.
 - Tests: `node tests/run.js` checks every page's links and figures; `cd tests && node study-ui.js` renders every page at 390 and 1440 px.
 
-### CS-A1140 DSA (exam Mon 30.11.2026) — done 17.11
+### CS-A1140 DSA (exam Mon 22.2.2027, moved from 30.11.2026) — done 17.11
 - **28 templates** in the 7 exam slots, each generating new numbers. Q1: operation-cost tables, 6 code-analysis snippets (2025 style), amortized/queue written answers, ArrayBuffer copy counts. Q2: identify-the-sort for 6 Scala sorts (selection, insertion, merge with/without the early-exit line, Lomuto quicksort, heapsort, LSD radix) + sorting traces. Q3: BST insert/delete (pick the resulting tree), AVL rotations, heap array/insert/remove-max, chaining, linear probing with tombstones and search probes, quadratic/double hashing. Q4: DFS (+ timestamps, topological order, cycle test), BFS + SCC, Dijkstra tables, MST. Q5: frog jumps, rgb-strings, DAG path counting, longest DAG path, palindromic subsequence, coin change, knapsack. Q6: NP definitions + "why is X in NP" for 10 problems, P/NP quick checks, parallel work/span for 5 programs, Brent/Amdahl numbers.
 - **6 past papers** (1.12.2025, 2.12.2024 translated, 4.12.2023, 21.2.2019, 12.12.2018, 12.12.2016) with the exams' own trees, graphs and code, read from the PDF images. The 2023 DAG (Q5) comes from a blurry photo and is marked so.
 - **Mock exam**: 7 slots, 10/11/8/14/8/8/1 = 60 p, 3 h, grade 30/40/55/70/85 %.
 - Parts in the generated bank (one sample each): 39 multiple choice, 30 written + rubric, 21 tables, 10 numeric, 7 order, 1 free. Past papers: 90 multiple choice, 73 written, 23 tables, 10 order, 2 numeric.
 - Tests: 5 600 generated questions + all paper questions pass; 300 rounds of brute-force cross-checks pass; UI test passes at desktop and phone width.
 
-### 35C03000 Process Analysis and Management (exam Tue 1.12.2026) — done 17.11
+### 35C03000 Process Analysis and Management (exam Mon 11.1.2027, moved from 1.12.2026) — done 17.11
 - No past papers exist; built on the lecture-1 exam format (multiple choice + simple calculations + open questions + reflective essay) and the lecture slides.
 - **22 templates**: 12 calculation generators (Little's law in 3 directions, capacity / bottleneck / labour utilisation as in the Sarah–Anne–Thomas example, multi-server service bottleneck, TOC product mix by margin per bottleneck minute, line balancing with the longest-work-element rule, EOQ + reorder point, safety stock, newsvendor single-season and weekly, value of lead time with lognormal demand, service level from waiting times, queue waiting time, chase vs level cost) · 7 concept multiple-choice sets per lecture (~45 questions) · open questions (8, with rubrics) · reflective essays on 10 cases/simulations (rubric 10 p).
 - z-values are read like the printed z-table (2 decimals). Checked against the slide examples (GAP 146.25, Alepa 14, z-table readings, EOQ).
@@ -53,7 +53,7 @@ The previous version is kept as `index (before exam rebuild).html`.
 - The real **19.2.2026 paper** (Leipiintynyt Oy); answers match a hand calculation (Q1 5.47 €, Q3 52 240 €, Q4 424 240 €, Q5 17.48 %, Q6 57.25 %, Q7 5.14 %, Q8 0.7722, Q9 21 925.33 €, Q10 5 065.82 €, Q11 74 025.79 €).
 - The worked solution shows the whole Excel sheet with the colour rules (yellow given, blue formulas, green answers). Drills: income statement, closing balance + cash flow, key ratios, investment table, cannibalisation, discount factors, written IRR/payback/sunk-cost questions. 8 templates; mock 25 p, 2 h.
 
-### ISM-C1004 Business Analytics 1 (Wed 2.12.2026, time: check Sisu) — done 17.11
+### ISM-C1004 Business Analytics 1 (retake Mon 1.2.2027, time: check Sisu) — done 17.11
 - No past papers; built from the lecture examples. `lib.js` has a small LP solver (vertex enumeration) and computes Excel-style **sensitivity reports** (final value, reduced cost, shadow price, allowable increase/decrease, 1E+30); checked against the Iron Works and "extra example" slides.
 - **18 templates**: formulation builder (product mix, transportation, assignment, capital budgeting, fixed charge with big-M), sensitivity-report reading, dual, graphical LP (drawn feasible region), transshipment, binary logic constraints, LP relaxation vs integer optimum, scenario Markowitz, Pareto efficiency + weighted sum, theory sets (LP, sensitivity, networks, MILP, NLP, MOP), written theory. Mock 50 p. Nothing is based on Assignment 3.
 

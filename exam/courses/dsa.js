@@ -1,4 +1,4 @@
-/* CS-A1140 Data Structures and Algorithms — exam Mon 30.11.2026, pen & paper, 3 h, 60 p.
+/* CS-A1140 Data Structures and Algorithms — exam Mon 22.2.2027 (moved from 30.11.2026; time and room: check Sisu), pen & paper, 3 h, 60 p.
    Every template follows the fixed 7-slot exam skeleton; all answers are computed by XM.lib.
    The builders (XM.DSA.*) are shared with the past papers in dsa-papers.js. */
 (function (G) {
@@ -800,7 +800,7 @@ const TPL = {
 XM.register({
   id: 'dsa', code: 'CS-A1140', name: 'Data Structures and Algorithms', short: 'DSA', accent: '#6FD3FF', arena: 'CS-A1140',
   bosses: ['Big O', 'The Pivot', 'Heap Titan', 'The Rotator', 'Collision Kraken', 'Memo Monolith', 'The Traverser', 'Path Oracle', 'The Multicore', 'The Intractable', 'The Examiner'],
-  exam: { date: '2026-11-30T17:00:00', end: '2026-11-30T20:00:00', where: 'pen & paper (check the hall in MyCourses)', format: 'Pen and paper, 3 h, no calculator or notes. 7 questions, 60 points.',
+  exam: { date: '2027-02-22T09:00:00', tentative: true, where: 'pen & paper, Mon 22.2.2027 (time and room: check Sisu)', format: 'Pen and paper, 3 h, no calculator or notes. 7 questions, 60 points.',
     rules: 'No calculator, no notes. "Running time" means the tightest O/Θ bound. Justify when asked.',
     notes: '<p>The same 7-question skeleton every year: <b>Q1</b> running times (10 p) · <b>Q2</b> sorting code (11–13 p, every year) · <b>Q3</b> BST/AVL, heap or hashing (8–11 p) · <b>Q4</b> graph traversal trace (11–14 p) · <b>Q5</b> design a DP (8 p) · <b>Q6</b> NP or parallel (8 p) · <b>Q7</b> finishing time (1 p).</p><p>Your A+ points are above the grade-5 limit, so <b>the exam alone sets your grade</b>: 30 % → 1, 40 % → 2, 55 % → 3, 70 % → 4, 85 % → 5.</p>' },
   grades: [[85, 5], [70, 4], [55, 3], [40, 2], [30, 1]],

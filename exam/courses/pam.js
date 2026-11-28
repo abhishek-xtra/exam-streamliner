@@ -1,4 +1,4 @@
-/* 35C03000 Process Analysis and Management — exam Tue 1.12.2026 13–16, SchoolYear, closed book.
+/* 35C03000 Process Analysis and Management — exam Mon 11.1.2027 (moved from 1.12.2026; time and room: check Sisu), SchoolYear, closed book.
    Format (lecture 1 slides): multiple choice + (simple) calculations + open questions + a reflective essay
    on the simulations and cases. No past papers exist: calculations follow the lecture examples
    (Krajewski / Cachon & Terwiesch formulas as on the slides), concepts follow lectures 1–10. */
@@ -294,7 +294,7 @@ XM.PAM = { CASES, gEssay };
 XM.register({
   id: 'pam', code: '35C03000', name: 'Process Analysis and Management', short: 'PAM', accent: '#42E2B8',
   bosses: ['The Bottleneck', 'Little\'s Lawyer', 'The Bullwhip', 'Muda Golem', 'The Newsvendor', 'Queue Wraith', 'The Examiner'],
-  exam: { date: '2026-12-01T13:00:00', end: '2026-12-01T16:00:00', where: 'computer classroom Y430 (SchoolYear)', format: 'SchoolYear, closed book, 3 h: multiple choice, simple calculations, open questions and a reflective essay on the simulations and cases.',
+  exam: { date: '2027-01-11T09:00:00', tentative: true, where: 'SchoolYear computer classroom, Mon 11.1.2027 (time and room: check Sisu)', format: 'SchoolYear, closed book, 3 h: multiple choice, simple calculations, open questions and a reflective essay on the simulations and cases.',
     rules: 'Closed book. A calculator is usually available in SchoolYear; keep a z-table in mind (the app reads z like the printed table).',
     notes: '<p>No past papers exist (new flipped course). This mode follows the format announced in lecture 1: <b>multiple choice</b>, <b>simple calculations</b>, <b>open questions</b> and a <b>reflective essay</b> based on the simulations and cases (ARAPU, Run Like Clockwork, Baman, Sonae MC, Posti). You need <b>≥ 50 % of the exam points</b> to pass; the exam is 35 % of the grade.</p><p>Formulas used exactly as on the slides: L = λ·w; capacity = resources/processing time; labour utilisation = labour content/(content + idle); EOQ = √(2c<sub>o</sub>D/c<sub>h</sub>); critical ratio c<sub>s</sub>/(c<sub>o</sub>+c<sub>s</sub>), Q* = μ + zσ; line balancing with TM = ⌈Σt/c⌉ and the longest-work-element rule.</p>' },
   grades: [[90, 5], [80, 4], [70, 3], [60, 2], [50, 1]],

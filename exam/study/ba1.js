@@ -7,7 +7,7 @@ const T = (head, rows) => `<div class="xm-tw"><table><tr>${head.map(x => `<th>${
 const note = (t, b) => `<div class="xm-note"><b>${t}</b> ${b}</div>`;
 
 XM.study.ba1 = [
-{ id: 'overview', slot: 'Start here', title: 'How the BA1 exam works', intro: 'Wed 2.12.2026 (<b>time: check Sisu</b>). Second and last chance 1.2.2027. Two kinds of questions (lecture 0): <b>modelling problems</b> like the spreadsheet assignments (formulate and implement/solve) and <b>theory & terminology</b> like the quizzes.',
+{ id: 'overview', slot: 'Start here', title: 'How the BA1 exam works', intro: 'Retake <b>Mon 1.2.2027</b> (<b>time and room: check Sisu</b>; the S&S exam is the same day). Two kinds of questions (lecture 0): <b>modelling problems</b> like the spreadsheet assignments (formulate and implement/solve) and <b>theory & terminology</b> like the quizzes.',
   know: T(['Exam %', '&gt;50', '&gt;60', '&gt;70', '&gt;80', '&gt;90'], [['Grade', '1', '2', '3', '4', '5']]) + note('Final grade:', '30 % × min(assignments, 100) + 70 % × exam (+ feedback point). You need ≥ 50 % of the exam points.') + note('No AI:', 'the course requires you to formulate and implement models yourself.'),
   method: ['For every modelling problem write: <b>indices → parameters → decision variables → objective → constraints → variable types</b>.', 'Then implement: data cells, variable cells, SUMPRODUCT formulas, Solver (Simplex LP or GRG Nonlinear, non-negativity, int/bin).'] },
 

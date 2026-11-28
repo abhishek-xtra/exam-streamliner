@@ -1,4 +1,4 @@
-/* ISM-C1004 Business Analytics 1 — exam Wed 2.12.2026 (time: check Sisu). No past papers.
+/* ISM-C1004 Business Analytics 1 — retake Mon 1.2.2027 (time and room: check Sisu; same day as the S&S exam). No past papers.
    Exam = (1) modelling problems like the spreadsheet assignments, (2) theory & terminology.
    Built from the lecture examples (Iron Works, Olympic Bike, Dakota, P&P, Ryan, swim team,
    capital budgeting, fixed charge, Markowitz, MOLP) with new numbers. Every optimum and every
@@ -295,9 +295,9 @@ const SRC = 'Course material: ';
 XM.register({
   id: 'ba1', code: 'ISM-C1004', name: 'Business Analytics 1', short: 'BA1', accent: '#A198FF',
   bosses: ['The Simplex', 'Shadow Price', 'The Transporter', 'Branch & Bound', 'The Pareto Front', 'The Examiner'],
-  exam: { date: '2026-12-02T09:00:00', tentative: true, where: 'campus (time not stated in MyCourses: check Sisu!)', format: 'Modelling problems (formulate and solve, like the spreadsheet assignments) + theory & terminology questions. Pass ≥ 50 % of the exam.',
+  exam: { date: '2027-02-01T09:00:00', tentative: true, where: 'retake, Mon 1.2.2027 (time and room: check Sisu)', format: 'Modelling problems (formulate and solve, like the spreadsheet assignments) + theory & terminology questions. Pass ≥ 50 % of the exam.',
     rules: 'No AI. Formulate: indices → parameters → decision variables → objective → constraints → variable types.',
-    notes: '<p><b>Time: check Sisu</b> (TU-A1300 MT2 is 13–15 the same day). The exam has <b>modelling problems</b> and <b>theory</b>. Key skills here: the <b>formulation builder</b> (pick correct variables, objective, constraints) and <b>reading Excel sensitivity reports</b> (all numbers computed by an LP solver). Built from lecture examples only; none of it is based on Assignment 3.</p><p>Grade: &gt;50 % → 1, &gt;60 % → 2, &gt;70 % → 3, &gt;80 % → 4, &gt;90 % → 5 (final = 30 % assignments + 70 % exam).</p>' },
+    notes: '<p><b>Retake Mon 1.2.2027 — time: check Sisu</b> (the S&S exam is the same day). The exam has <b>modelling problems</b> and <b>theory</b>. Key skills here: the <b>formulation builder</b> (pick correct variables, objective, constraints) and <b>reading Excel sensitivity reports</b> (all numbers computed by an LP solver). Built from lecture examples only; none of it is based on Assignment 3.</p><p>Grade: &gt;50 % → 1, &gt;60 % → 2, &gt;70 % → 3, &gt;80 % → 4, &gt;90 % → 5 (final = 30 % assignments + 70 % exam).</p>' },
   grades: [[90, 5], [80, 4], [70, 3], [60, 2], [50, 1]],
   gradeNote: 'Exam-only estimate; the final grade also uses 30 % assignments.',
   topics: { form: { name: 'LP formulation', slot: 'modelling', weight: 1 }, sens: { name: 'Sensitivity report & duality', slot: 'modelling / theory', weight: 1 }, graph: { name: 'Graphical LP', slot: 'modelling', weight: .5 },

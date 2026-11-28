@@ -8,7 +8,7 @@ const note = (t, b) => `<div class="xm-note"><b>${t}</b> ${b}</div>`;
 
 XM.study.dsa = [
 { id: 'overview', slot: 'Start here', title: 'How the DSA exam works', intro: 'The exam has had the <b>same 7-question skeleton since 2016</b>. Learn the skeleton, then learn each slot. Your A+ points already exceed the grade-5 limit, so <b>the exam % alone sets your grade</b>.',
-  asks: ['Mon 30.11.2026, 17:00–20:00, pen and paper, <b>no calculator, no notes</b>. Answer in English, Finnish or Swedish.', '"Running time" always means the <b>tightest asymptotic bound</b> in O / Θ notation.', 'When a part says <i>justify</i>, a bare answer earns only part of the points: add one or two sentences of reason.'],
+  asks: ['Mon 22.2.2027 (moved from 30.11.2026; time and room: check Sisu), 3 h, pen and paper, <b>no calculator, no notes</b>. Answer in English, Finnish or Swedish.', '"Running time" always means the <b>tightest asymptotic bound</b> in O / Θ notation.', 'When a part says <i>justify</i>, a bare answer earns only part of the points: add one or two sentences of reason.'],
   know: T(['Slot', 'Points', 'What it always is', '2025', '2024', '2023'], [
     ['Q1', '10', 'Running times / analyse code', 'dedup with seen.contains', 'cost table', '(sort was Q1)'],
     ['Q2', '11–13', '<b>Identify a sort from Scala code + analyse it</b> (every year)', 'selection', 'merge (+ early exit)', 'insertion'],
